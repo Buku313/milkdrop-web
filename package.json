@@ -1,0 +1,29 @@
+{
+  "name": "milkdrop-web-visualizer",
+  "version": "1.0.0",
+  "description": "Browser-based MilkDrop-compatible music visualizer with system audio capture",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "milkdrop",
+    "visualizer",
+    "music",
+    "audio",
+    "webgl",
+    "butterchurn"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "butterchurn": "^2.6.7",
+    "butterchurn-presets": "^2.4.7"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
