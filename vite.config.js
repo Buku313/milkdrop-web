@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   root: '.',
   publicDir: 'public',
+  base: '/milkdrop-web/',
   build: {
     outDir: 'dist',
     sourcemap: true
