@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MilkDrop Web Visualizer</title>
+  <script type="module" crossorigin src="/milkdrop-web/assets/index-pOtvPz07.js"></script>
+  <link rel="stylesheet" crossorigin href="/milkdrop-web/assets/index-DTKpwGAK.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="visualizer"></canvas>
+
+    <div id="controls" class="controls">
+      <div class="controls-header">
+        <h1>MilkDrop Web</h1>
+        <div class="header-buttons">
+          <button id="btn-effects-panel" class="icon-btn" title="Effects & Logo">✨</button>
+          <button id="btn-editor-panel" class="icon-btn" title="Preset Editor">🎛️</button>
+          <button id="toggle-controls" class="icon-btn" title="Toggle Controls">☰</button>
+        </div>
+      </div>
+
+      <div class="controls-body">
+        <section class="control-section">
+          <h2>Audio Source</h2>
+          <div class="audio-sources">
+            <button id="btn-microphone" class="source-btn">
+              <span class="icon">🎤</span>
+              <span>Microphone</span>
+            </button>
+            <button id="btn-screen" class="source-btn">
+              <span class="icon">🖥️</span>
+              <span>System Audio</span>
+            </button>
+            <button id="btn-file" class="source-btn">
+              <span class="icon">📁</span>
+              <span>Audio File</span>
+            </button>
+          </div>
+          <input type="file" id="audio-file-input" accept="audio/*" hidden>
+          <div id="audio-status" class="status">No audio source selected</div>
+        </section>
+
+        <section class="control-section">
+          <h2>Device Selector <span class="hint">(PipeWire/Linux)</span></h2>
+          <div class="device-selector">
+            <div class="device-row">
+              <select id="device-select" class="device-dropdown">
+                <option value="">-- Click Refresh to scan devices --</option>
+              </select>
+              <button id="btn-refresh-devices" class="icon-btn" title="Refresh Devices">🔄</button>
+            </div>
+            <button id="btn-connect-device" class="source-btn full-width">
+              <span class="icon">🔊</span>
+              <span>Connect Selected Device</span>
+            </button>
+            <div class="device-hint">
+              Look for "Monitor" devices for system audio capture
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <h2>Preset</h2>
+          <div class="preset-controls">
+            <select id="preset-select"></select>
+            <button id="btn-random" class="icon-btn" title="Random Preset">🎲</button>
+            <button id="btn-prev" class="icon-btn" title="Previous Preset">◀</button>
+            <button id="btn-next" class="icon-btn" title="Next Preset">▶</button>
+          </div>
+          <div class="preset-info">
+            <label>
+              <input type="checkbox" id="auto-cycle" checked>
+              Auto-cycle presets
+            </label>
+            <div class="cycle-time">
+              <label for="cycle-interval">Interval (s):</label>
+              <input type="number" id="cycle-interval" value="30" min="5" max="300">
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <h2>Custom Preset</h2>
+          <div class="custom-preset">
+            <button id="btn-load-preset" class="source-btn full-width">
+              <span class="icon">📂</span>
+              <span>Load .milk File</span>
+            </button>
+            <input type="file" id="preset-file-input" accept=".milk" hidden>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <h2>Settings</h2>
+          <div class="settings">
+            <div class="setting-row">
+              <label for="sensitivity">Sensitivity</label>
+              <input type="range" id="sensitivity" min="0.5" max="3" step="0.1" value="1">
+              <span id="sensitivity-value">1.0</span>
+            </div>
+            <div class="setting-row">
+              <label for="blend-time">Blend Time (s)</label>
+              <input type="range" id="blend-time" min="0" max="5" step="0.5" value="1.5">
+              <span id="blend-time-value">1.5</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <h2>Display</h2>
+          <div class="display-controls">
+            <button id="btn-fullscreen" class="source-btn full-width">
+              <span class="icon">⛶</span>
+              <span>Fullscreen</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Effects Panel -->
+    <div id="effects-panel" class="side-panel hidden">
+      <div class="panel-header">
+        <h2>Effects & Logo</h2>
+        <button id="close-effects" class="icon-btn">✕</button>
+      </div>
+      <div class="panel-body">
+        <!-- Logo Section -->
+        <section class="panel-section">
+          <h3>Logo Overlay</h3>
+          <div class="logo-controls">
+            <button id="btn-load-logo" class="source-btn full-width">
+              <span class="icon">🖼️</span>
+              <span>Load Logo Image</span>
+            </button>
+            <input type="file" id="logo-file-input" accept="image/*" hidden>
+            <button id="btn-remove-logo" class="source-btn full-width" disabled>
+              <span class="icon">🗑️</span>
+              <span>Remove Logo</span>
+            </button>
+
+            <div class="setting-row">
+              <label>Position X</label>
+              <input type="range" id="logo-x" min="0" max="1" step="0.01" value="0.5">
+              <span id="logo-x-value">0.5</span>
+            </div>
+            <div class="setting-row">
+              <label>Position Y</label>
+              <input type="range" id="logo-y" min="0" max="1" step="0.01" value="0.5">
+              <span id="logo-y-value">0.5</span>
+            </div>
+            <div class="setting-row">
+              <label>Scale</label>
+              <input type="range" id="logo-scale" min="0.05" max="1" step="0.01" value="0.2">
+              <span id="logo-scale-value">0.2</span>
+            </div>
+            <div class="setting-row">
+              <label>Opacity</label>
+              <input type="range" id="logo-opacity" min="0" max="1" step="0.01" value="0.8">
+              <span id="logo-opacity-value">0.8</span>
+            </div>
+            <div class="setting-row">
+              <label>Animation</label>
+              <select id="logo-animation">
+                <option value="none">None</option>
+                <option value="pulse">Pulse</option>
+                <option value="rotate">Rotate</option>
+                <option value="bounce">Bounce</option>
+                <option value="beatPulse" selected>Beat Pulse</option>
+                <option value="orbit">Orbit</option>
+                <option value="shake">Shake</option>
+                <option value="breathe">Breathe</option>
+              </select>
+            </div>
+
+            <h4 class="subsection-header">Audio Reactivity</h4>
+            <div class="effect-toggle">
+              <label><input type="checkbox" id="logo-react-enabled" checked> Enable Audio Reactivity</label>
+            </div>
+
+            <div class="setting-row">
+              <label>Scale React</label>
+              <input type="range" id="logo-react-scale" min="0" max="1" step="0.05" value="0.3">
+              <span id="logo-react-scale-value">0.3</span>
+            </div>
+            <div class="setting-row small">
+              <label>Scale Band</label>
+              <select id="logo-react-scale-band">
+                <option value="bass" selected>Bass</option>
+                <option value="mid">Mid</option>
+                <option value="treble">Treble</option>
+                <option value="bassAttack">Bass Attack</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <label>Rotation React</label>
+              <input type="range" id="logo-react-rotation" min="0" max="2" step="0.1" value="0.5">
+              <span id="logo-react-rotation-value">0.5</span>
+            </div>
+            <div class="setting-row small">
+              <label>Rotation Band</label>
+              <select id="logo-react-rotation-band">
+                <option value="bass">Bass</option>
+                <option value="mid" selected>Mid</option>
+                <option value="treble">Treble</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <label>Wobble</label>
+              <input type="range" id="logo-react-wobble" min="0" max="0.1" step="0.005" value="0.02">
+              <span id="logo-react-wobble-value">0.02</span>
+            </div>
+
+            <div class="setting-row">
+              <label>Opacity React</label>
+              <input type="range" id="logo-react-opacity" min="0" max="1" step="0.05" value="0.3">
+              <span id="logo-react-opacity-value">0.3</span>
+            </div>
+
+            <div class="effect-toggle">
+              <label><input type="checkbox" id="logo-color-tint" checked> Color Tint from Audio</label>
+            </div>
+
+            <div class="setting-row">
+              <label>Blend Mode</label>
+              <select id="logo-blend-mode">
+                <option value="normal">Normal</option>
+                <option value="lighter" selected>Lighter (Additive)</option>
+                <option value="screen">Screen</option>
+                <option value="overlay">Overlay</option>
+                <option value="multiply">Multiply</option>
+                <option value="color-dodge">Color Dodge</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Effects Section -->
+        <section class="panel-section">
+          <h3>Visual Effects</h3>
+
+          <div class="effect-toggle">
+            <label><input type="checkbox" id="effect-flash"> Beat Flash</label>
+          </div>
+          <div class="effect-settings" id="flash-settings">
+            <input type="color" id="flash-color" value="#ffffff">
+            <span>Flash Color</span>
+          </div>
+
+          <div class="effect-toggle">
+            <label><input type="checkbox" id="effect-border"> Glow Border</label>
+          </div>
+          <div class="effect-settings" id="border-settings">
+            <input type="color" id="border-color" value="#8866ff">
+            <div class="setting-row">
+              <label>Width</label>
+              <input type="range" id="border-width" min="1" max="50" value="10">
+            </div>
+            <label><input type="checkbox" id="border-pulse"> Pulse on beat</label>
+          </div>
+
+          <div class="effect-toggle">
+            <label><input type="checkbox" id="effect-vignette"> Vignette</label>
+          </div>
+          <div class="effect-settings" id="vignette-settings">
+            <div class="setting-row">
+              <label>Intensity</label>
+              <input type="range" id="vignette-intensity" min="0" max="1" step="0.1" value="0.5">
+            </div>
+          </div>
+
+          <div class="effect-toggle">
+            <label><input type="checkbox" id="effect-scanlines"> Scanlines</label>
+          </div>
+          <div class="effect-settings" id="scanlines-settings">
+            <div class="setting-row">
+              <label>Opacity</label>
+              <input type="range" id="scanlines-opacity" min="0" max="0.5" step="0.01" value="0.1">
+            </div>
+          </div>
+
+          <div class="effect-toggle">
+            <label><input type="checkbox" id="effect-overlay"> Color Overlay</label>
+          </div>
+          <div class="effect-settings" id="overlay-settings">
+            <input type="color" id="overlay-color" value="#ff0000">
+            <div class="setting-row">
+              <label>Opacity</label>
+              <input type="range" id="overlay-opacity" min="0" max="0.5" step="0.01" value="0.2">
+            </div>
+            <select id="overlay-blend">
+              <option value="overlay">Overlay</option>
+              <option value="multiply">Multiply</option>
+              <option value="screen">Screen</option>
+              <option value="color-dodge">Color Dodge</option>
+            </select>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Preset Editor Panel -->
+    <div id="editor-panel" class="side-panel left hidden">
+      <div class="panel-header">
+        <h2>Preset Editor</h2>
+        <button id="close-editor" class="icon-btn">✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="editor-actions">
+          <button id="btn-reset-preset" class="source-btn">
+            <span class="icon">↩️</span>
+            <span>Reset</span>
+          </button>
+          <button id="btn-export-preset" class="source-btn">
+            <span class="icon">💾</span>
+            <span>Export .milk</span>
+          </button>
+        </div>
+        <div id="editor-params"></div>
+      </div>
+    </div>
+
+    <div id="overlay" class="overlay hidden">
+      <div class="overlay-content">
+        <div id="preset-name" class="preset-name"></div>
+      </div>
+    </div>
+
+    <div id="audio-player-container" class="audio-player hidden">
+      <audio id="audio-player" controls></audio>
+    </div>
+  </div>
+
+</body>
+</html>
